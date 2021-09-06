@@ -2,26 +2,26 @@
  *Submitted for verification at BscScan.com on 2021-04-23
  */
 
-// File: contracts\FoodcourtRouter.sol
+// File: contracts\BlockSwapRouter.sol
 pragma solidity >=0.6.6;
 
-import "./interfaces/IFoodcourtRouter02.sol";
-import "./interfaces/IFoodcourtPair.sol";
-import "./interfaces/IFoodcourtFactory.sol";
+import "./interfaces/IBlockSwapRouter02.sol";
+import "./interfaces/IBlockSwapPair.sol";
+import "./interfaces/IBlockSwapFactory.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IWETH.sol";
-import "./libraries/FoodcourtLibrary.sol";
+import "./libraries/BlockSwapLibrary.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/TransferHelper.sol";
 
-contract FoodcourtRouter is IFoodcourtRouter02 {
+contract BlockSwapRouter is IBlockSwapRouter02 {
     using SafeMath for uint256;
 
     address public immutable override factory;
     address public immutable override WETH;
 
     modifier ensure(uint256 deadline) {
-        require(deadline >= block.timestamp, "FoodcourtRouter: EXPIRED");
+        require(deadline >= block.timestamp, "BlockSwapRouter: EXPIRED");
         _;
     }
 
@@ -44,30 +44,30 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         uint256 amountBMin
     ) internal virtual returns (uint256 amountA, uint256 amountB) {
         // create the pair if it doesn't exist yet
-        if (IFoodcourtFactory(factory).getPair(tokenA, tokenB) == address(0)) {
-            IFoodcourtFactory(factory).createPair(tokenA, tokenB);
+        if (IBlockSwapFactory(factory).getPair(tokenA, tokenB) == address(0)) {
+            IBlockSwapFactory(factory).createPair(tokenA, tokenB);
         }
         (uint256 reserveA, uint256 reserveB) =
-            FoodcourtLibrary.getReserves(factory, tokenA, tokenB);
+            BlockSwapLibrary.getReserves(factory, tokenA, tokenB);
         
         if (reserveA == 0 && reserveB == 0) {
             (amountA, amountB) = (amountADesired, amountBDesired);
         } else {
             uint256 amountBOptimal =
-                FoodcourtLibrary.quote(amountADesired, reserveA, reserveB);
+                BlockSwapLibrary.quote(amountADesired, reserveA, reserveB);
             if (amountBOptimal <= amountBDesired) {
                 require(
                     amountBOptimal >= amountBMin,
-                    "FoodcourtRouter: INSUFFICIENT_B_AMOUNT"
+                    "BlockSwapRouter: INSUFFICIENT_B_AMOUNT"
                 );
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
                 uint256 amountAOptimal =
-                    FoodcourtLibrary.quote(amountBDesired, reserveB, reserveA);
+                    BlockSwapLibrary.quote(amountBDesired, reserveB, reserveA);
                 assert(amountAOptimal <= amountADesired);
                 require(
                     amountAOptimal >= amountAMin,
-                    "FoodcourtRouter: INSUFFICIENT_A_AMOUNT"
+                    "BlockSwapRouter: INSUFFICIENT_A_AMOUNT"
                 );
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
@@ -102,10 +102,10 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
             amountAMin,
             amountBMin
         );
-        address pair = FoodcourtLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = BlockSwapLibrary.pairFor(factory, tokenA, tokenB);
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
-        liquidity = IFoodcourtPair(pair).mint(to);
+        liquidity = IBlockSwapPair(pair).mint(to);
     }
 
     function addLiquidityETH(
@@ -135,11 +135,11 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
             amountTokenMin,
             amountETHMin
         );
-        address pair = FoodcourtLibrary.pairFor(factory, token, WETH);
+        address pair = BlockSwapLibrary.pairFor(factory, token, WETH);
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
         assert(IWETH(WETH).transfer(pair, amountETH));
-        liquidity = IFoodcourtPair(pair).mint(to);
+        liquidity = IBlockSwapPair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
@@ -161,20 +161,20 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256 amountA, uint256 amountB)
     {
-        address pair = FoodcourtLibrary.pairFor(factory, tokenA, tokenB);
-        IFoodcourtPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
-        (uint256 amount0, uint256 amount1) = IFoodcourtPair(pair).burn(to);
-        (address token0, ) = FoodcourtLibrary.sortTokens(tokenA, tokenB);
+        address pair = BlockSwapLibrary.pairFor(factory, tokenA, tokenB);
+        IBlockSwapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        (uint256 amount0, uint256 amount1) = IBlockSwapPair(pair).burn(to);
+        (address token0, ) = BlockSwapLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0
             ? (amount0, amount1)
             : (amount1, amount0);
         require(
             amountA >= amountAMin,
-            "FoodcourtRouter: INSUFFICIENT_A_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_A_AMOUNT"
         );
         require(
             amountB >= amountBMin,
-            "FoodcourtRouter: INSUFFICIENT_B_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_B_AMOUNT"
         );
     }
 
@@ -219,9 +219,9 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         bytes32 r,
         bytes32 s
     ) external virtual override returns (uint256 amountA, uint256 amountB) {
-        address pair = FoodcourtLibrary.pairFor(factory, tokenA, tokenB);
+        address pair = BlockSwapLibrary.pairFor(factory, tokenA, tokenB);
         uint256 value = approveMax ? uint256(-1) : liquidity;
-        IFoodcourtPair(pair).permit(
+        IBlockSwapPair(pair).permit(
             msg.sender,
             address(this),
             value,
@@ -258,9 +258,9 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         override
         returns (uint256 amountToken, uint256 amountETH)
     {
-        address pair = FoodcourtLibrary.pairFor(factory, token, WETH);
+        address pair = BlockSwapLibrary.pairFor(factory, token, WETH);
         uint256 value = approveMax ? uint256(-1) : liquidity;
-        IFoodcourtPair(pair).permit(
+        IBlockSwapPair(pair).permit(
             msg.sender,
             address(this),
             value,
@@ -318,9 +318,9 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         bytes32 r,
         bytes32 s
     ) external virtual override returns (uint256 amountETH) {
-        address pair = FoodcourtLibrary.pairFor(factory, token, WETH);
+        address pair = BlockSwapLibrary.pairFor(factory, token, WETH);
         uint256 value = approveMax ? uint256(-1) : liquidity;
-        IFoodcourtPair(pair).permit(
+        IBlockSwapPair(pair).permit(
             msg.sender,
             address(this),
             value,
@@ -348,7 +348,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
     ) internal virtual {
         for (uint256 i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
-            (address token0, ) = FoodcourtLibrary.sortTokens(input, output);
+            (address token0, ) = BlockSwapLibrary.sortTokens(input, output);
             uint256 amountOut = amounts[i + 1];
             (uint256 amount0Out, uint256 amount1Out) =
                 input == token0
@@ -356,9 +356,9 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
                     : (amountOut, uint256(0));
             address to =
                 i < path.length - 2
-                    ? FoodcourtLibrary.pairFor(factory, output, path[i + 2])
+                    ? BlockSwapLibrary.pairFor(factory, output, path[i + 2])
                     : _to;
-            IFoodcourtPair(FoodcourtLibrary.pairFor(factory, input, output))
+            IBlockSwapPair(BlockSwapLibrary.pairFor(factory, input, output))
                 .swap(amount0Out, amount1Out, to, new bytes(0));
         }
     }
@@ -376,15 +376,15 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        amounts = FoodcourtLibrary.getAmountsOut(factory, amountIn, path);
+        amounts = BlockSwapLibrary.getAmountsOut(factory, amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
         _swap(amounts, path, to);
@@ -403,15 +403,15 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        amounts = FoodcourtLibrary.getAmountsIn(factory, amountOut, path);
+        amounts = BlockSwapLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= amountInMax,
-            "FoodcourtRouter: EXCESSIVE_INPUT_AMOUNT"
+            "BlockSwapRouter: EXCESSIVE_INPUT_AMOUNT"
         );
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
         _swap(amounts, path, to);
@@ -430,16 +430,16 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        require(path[0] == WETH, "FoodcourtRouter: INVALID_PATH");
-        amounts = FoodcourtLibrary.getAmountsOut(factory, msg.value, path);
+        require(path[0] == WETH, "BlockSwapRouter: INVALID_PATH");
+        amounts = BlockSwapLibrary.getAmountsOut(factory, msg.value, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
         IWETH(WETH).deposit{value:amounts[0]}();
         assert(
             IWETH(WETH).transfer(
-                FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+                BlockSwapLibrary.pairFor(factory, path[0], path[1]),
                 amounts[0]
             )
         );
@@ -459,16 +459,16 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, "FoodcourtRouter: INVALID_PATH");
-        amounts = FoodcourtLibrary.getAmountsIn(factory, amountOut, path);
+        require(path[path.length - 1] == WETH, "BlockSwapRouter: INVALID_PATH");
+        amounts = BlockSwapLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= amountInMax,
-            "FoodcourtRouter: EXCESSIVE_INPUT_AMOUNT"
+            "BlockSwapRouter: EXCESSIVE_INPUT_AMOUNT"
         );
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
         _swap(amounts, path, address(this));
@@ -489,16 +489,16 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, "FoodcourtRouter: INVALID_PATH");
-        amounts = FoodcourtLibrary.getAmountsOut(factory, amountIn, path);
+        require(path[path.length - 1] == WETH, "BlockSwapRouter: INVALID_PATH");
+        amounts = BlockSwapLibrary.getAmountsOut(factory, amountIn, path);
         require(
             amounts[amounts.length - 1] >= amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
         _swap(amounts, path, address(this));
@@ -519,16 +519,16 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         ensure(deadline)
         returns (uint256[] memory amounts)
     {
-        require(path[0] == WETH, "FoodcourtRouter: INVALID_PATH");
-        amounts = FoodcourtLibrary.getAmountsIn(factory, amountOut, path);
+        require(path[0] == WETH, "BlockSwapRouter: INVALID_PATH");
+        amounts = BlockSwapLibrary.getAmountsIn(factory, amountOut, path);
         require(
             amounts[0] <= msg.value,
-            "FoodcourtRouter: EXCESSIVE_INPUT_AMOUNT"
+            "BlockSwapRouter: EXCESSIVE_INPUT_AMOUNT"
         );
         IWETH(WETH).deposit{value:amounts[0]}();
         assert(
             IWETH(WETH).transfer(
-                FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+                BlockSwapLibrary.pairFor(factory, path[0], path[1]),
                 amounts[0]
             )
         );
@@ -546,10 +546,10 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
     ) internal virtual {
         for (uint256 i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
-            (address token0, ) = FoodcourtLibrary.sortTokens(input, output);
-            IFoodcourtPair pair =
-                IFoodcourtPair(
-                    FoodcourtLibrary.pairFor(factory, input, output)
+            (address token0, ) = BlockSwapLibrary.sortTokens(input, output);
+            IBlockSwapPair pair =
+                IBlockSwapPair(
+                    BlockSwapLibrary.pairFor(factory, input, output)
                 );
             uint256 amountInput;
             uint256 amountOutput;
@@ -563,7 +563,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
                 amountInput = IERC20(input).balanceOf(address(pair)).sub(
                     reserveInput
                 );
-                amountOutput = FoodcourtLibrary.getAmountOut(
+                amountOutput = BlockSwapLibrary.getAmountOut(
                     amountInput,
                     reserveInput,
                     reserveOutput
@@ -575,7 +575,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
                     : (amountOutput, uint256(0));
             address to =
                 i < path.length - 2
-                    ? FoodcourtLibrary.pairFor(factory, output, path[i + 2])
+                    ? BlockSwapLibrary.pairFor(factory, output, path[i + 2])
                     : _to;
             pair.swap(amount0Out, amount1Out, to, new bytes(0));
         }
@@ -591,7 +591,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amountIn
         );
         uint256 balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
@@ -599,7 +599,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
                 amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
     }
 
@@ -609,12 +609,12 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         address to,
         uint256 deadline
     ) external payable virtual override ensure(deadline) {
-        require(path[0] == WETH, "FoodcourtRouter: INVALID_PATH");
+        require(path[0] == WETH, "BlockSwapRouter: INVALID_PATH");
         uint256 amountIn = msg.value;
         IWETH(WETH).deposit{value: amountIn}();
         assert(
             IWETH(WETH).transfer(
-                FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+                BlockSwapLibrary.pairFor(factory, path[0], path[1]),
                 amountIn
             )
         );
@@ -623,7 +623,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >=
                 amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
     }
 
@@ -634,18 +634,18 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         address to,
         uint256 deadline
     ) external virtual override ensure(deadline) {
-        require(path[path.length - 1] == WETH, "FoodcourtRouter: INVALID_PATH");
+        require(path[path.length - 1] == WETH, "BlockSwapRouter: INVALID_PATH");
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
-            FoodcourtLibrary.pairFor(factory, path[0], path[1]),
+            BlockSwapLibrary.pairFor(factory, path[0], path[1]),
             amountIn
         );
         _swapSupportingFeeOnTransferTokens(path, address(this));
         uint256 amountOut = IERC20(WETH).balanceOf(address(this));
         require(
             amountOut >= amountOutMin,
-            "FoodcourtRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+            "BlockSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
         IWETH(WETH).withdraw(amountOut);
         TransferHelper.safeTransferETH(to, amountOut);
@@ -657,7 +657,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         uint256 reserveA,
         uint256 reserveB
     ) public pure virtual override returns (uint256 amountB) {
-        return FoodcourtLibrary.quote(amountA, reserveA, reserveB);
+        return BlockSwapLibrary.quote(amountA, reserveA, reserveB);
     }
 
     function getAmountOut(
@@ -665,7 +665,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         uint256 reserveIn,
         uint256 reserveOut
     ) public pure virtual override returns (uint256 amountOut) {
-        return FoodcourtLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+        return BlockSwapLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
     }
 
     function getAmountIn(
@@ -673,7 +673,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         uint256 reserveIn,
         uint256 reserveOut
     ) public pure virtual override returns (uint256 amountIn) {
-        return FoodcourtLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
+        return BlockSwapLibrary.getAmountIn(amountOut, reserveIn, reserveOut);
     }
 
     function getAmountsOut(uint256 amountIn, address[] memory path)
@@ -683,7 +683,7 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         override
         returns (uint256[] memory amounts)
     {
-        return FoodcourtLibrary.getAmountsOut(factory, amountIn, path);
+        return BlockSwapLibrary.getAmountsOut(factory, amountIn, path);
     }
 
     function getAmountsIn(uint256 amountOut, address[] memory path)
@@ -693,6 +693,6 @@ contract FoodcourtRouter is IFoodcourtRouter02 {
         override
         returns (uint256[] memory amounts)
     {
-        return FoodcourtLibrary.getAmountsIn(factory, amountOut, path);
+        return BlockSwapLibrary.getAmountsIn(factory, amountOut, path);
     }
 }

@@ -1,10 +1,10 @@
-// File: contracts\interfaces\IFoodcourtPair.sol
+// File: contracts\interfaces\IBlockSwapPair.sol
 
 pragma solidity >=0.5.0;
 
-import "./IFoodcourtERC20.sol";
+import "./IBlockSwapERC20.sol";
 
-interface IFoodcourtPair is IFoodcourtERC20 {
+interface IBlockSwapPair is IBlockSwapERC20 {
     event Mint(address indexed sender, uint256 amount0, uint256 amount1);
     event Burn(
         address indexed sender,

@@ -1,8 +1,8 @@
-// File: contracts\interfaces\IFoodcourtFactory.sol
+// File: contracts\interfaces\IBlockSwapFactory.sol
 
 pragma solidity >=0.5.0;
 
-interface IFoodcourtFactory {
+interface IBlockSwapFactory {
     event PairCreated(
         address indexed token0,
         address indexed token1,

@@ -22,22 +22,22 @@ async function main() {
     const [owner] = await hre.ethers.getSigners();
     const provider = owner.provider;
 
-    const FoodcourtFactory = await hre.ethers.getContractFactory("FoodcourtFactory");
-    const foodcourtFactory = await FoodcourtFactory.deploy(owner.address);
-    await foodcourtFactory.deployed();
-    console.log("FoodcourtFactory deployed to:", foodcourtFactory.address);
+    const BlockSwapFactory = await hre.ethers.getContractFactory("BlockSwapFactory");
+    const blockSwapFactory = await BlockSwapFactory.deploy(owner.address);
+    await blockSwapFactory.deployed();
+    console.log("BlockSwapFactory deployed to:", blockSwapFactory.address);
 
-    console.log("init code hash: ", await foodcourtFactory.INIT_CODE_PAIR_HASH());
+    console.log("init code hash: ", await blockSwapFactory.INIT_CODE_PAIR_HASH());
 
     const WKUB = await hre.ethers.getContractFactory("WKUB");
     const wkub = await WKUB.deploy();
     await wkub.deployed();
     console.log("WKUB deployed to:", wkub.address);
 
-    const FoodcourtRouter = await hre.ethers.getContractFactory("FoodcourtRouter");
-    const foodcourtRouter = await FoodcourtRouter.deploy(foodcourtFactory.address, wkub.address);
-    await foodcourtRouter.deployed();
-    console.log("FoodcourtRouter deployed to:", foodcourtRouter.address);
+    const BlockSwapRouter = await hre.ethers.getContractFactory("BlockSwapRouter");
+    const blockSwapRouter = await BlockSwapRouter.deploy(blockSwapFactory.address, wkub.address);
+    await blockSwapRouter.deployed();
+    console.log("BlockSwapRouter deployed to:", blockSwapRouter.address);
 
     const DAI = await hre.ethers.getContractFactory("DAI");
     const dai = await DAI.deploy();
@@ -52,18 +52,18 @@ async function main() {
 
     console.log("Current KUB: ", await provider.getBalance(owner.address).then(formatEther)) // x
 
-    await dai.approve(foodcourtRouter.address, parseEther(1000));
+    await dai.approve(blockSwapRouter.address, parseEther(1000));
 
     // KUB-DAI 100:1000
     console.log("=== Add liquidity ===")
-    await foodcourtRouter.addLiquidityETH(dai.address, parseEther(1000), parseEther(990), parseEther(100), owner.address, deadline, { value: parseEther(100) });
+    await blockSwapRouter.addLiquidityETH(dai.address, parseEther(1000), parseEther(990), parseEther(100), owner.address, deadline, { value: parseEther(100) });
 
     console.log("DAI of owner: ", await dai.balanceOf(owner.address).then(formatEther)); // 1000
     console.log("Current KUB: ", await provider.getBalance(owner.address).then(formatEther)); // x - 100 - gas
 
     // Swap 1 KUB -> 10 DAI
     console.log("=== SWAP ===")
-    await foodcourtRouter.swapExactETHForTokens(parseEther(9), [wkub.address, dai.address], owner.address, deadline + INTERVAL, { value: parseEther(1) })
+    await blockSwapRouter.swapExactETHForTokens(parseEther(9), [wkub.address, dai.address], owner.address, deadline + INTERVAL, { value: parseEther(1) })
 
     console.log("DAI of owner: ", await dai.balanceOf(owner.address).then(formatEther)); //  1010
     console.log("Current KUB: ", await provider.getBalance(owner.address).then(formatEther)); //  x - 10 - gas - 1

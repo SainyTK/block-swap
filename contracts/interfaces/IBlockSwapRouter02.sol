@@ -1,10 +1,10 @@
-// File: contracts\interfaces\IFoodcourtRouter02.sol
+// File: contracts\interfaces\IBlockSwapRouter02.sol
 
 pragma solidity >=0.6.2;
 
-import "./IFoodcourtRouter01.sol";
+import "./IBlockSwapRouter01.sol";
 
-interface IFoodcourtRouter02 is IFoodcourtRouter01 {
+interface IBlockSwapRouter02 is IBlockSwapRouter01 {
     function removeLiquidityETHSupportingFeeOnTransferTokens(
         address token,
         uint256 liquidity,

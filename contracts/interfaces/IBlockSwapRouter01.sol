@@ -1,8 +1,8 @@
-// File: contracts\interfaces\IFoodcourtRouter01.sol
+// File: contracts\interfaces\IBlockSwapRouter01.sol
 
 pragma solidity >=0.5.16;
 
-interface IFoodcourtRouter01 {
+interface IBlockSwapRouter01 {
     function factory() external pure returns (address);
 
     function WETH() external pure returns (address);

@@ -1,11 +1,11 @@
-// File: contracts\libraries\FoodcourtLibrary.sol
+// File: contracts\libraries\BlockSwapLibrary.sol
 
 pragma solidity >=0.5.0;
 
 import "./SafeMath.sol";
-import "../interfaces/IFoodcourtPair.sol";
+import "../interfaces/IBlockSwapPair.sol";
 
-library FoodcourtLibrary {
+library BlockSwapLibrary {
     using SafeMath for uint256;
 
     // returns sorted token addresses, used to handle return values from pairs sorted in this order
@@ -14,11 +14,11 @@ library FoodcourtLibrary {
         pure
         returns (address token0, address token1)
     {
-        require(tokenA != tokenB, "FoodcourtLibrary: IDENTICAL_ADDRESSES");
+        require(tokenA != tokenB, "BlockSwapLibrary: IDENTICAL_ADDRESSES");
         (token0, token1) = tokenA < tokenB
             ? (tokenA, tokenB)
             : (tokenB, tokenA);
-        require(token0 != address(0), "FoodcourtLibrary: ZERO_ADDRESS");
+        require(token0 != address(0), "BlockSwapLibrary: ZERO_ADDRESS");
     }
 
     // calculates the CREATE2 address for a pair without making any external calls
@@ -35,7 +35,7 @@ library FoodcourtLibrary {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"e828c384498e3d7793c0b829eeff74500cd4ff89cdbe3ec16c471c70a612e165" // init code hash
+                        hex"7d9d613af85ec98fe334d6f9e81adabfeedda8d291ab830832ed815862d76aa9" // init code hash
                     )
                 )
             )
@@ -51,7 +51,7 @@ library FoodcourtLibrary {
         (address token0, ) = sortTokens(tokenA, tokenB);
         pairFor(factory, tokenA, tokenB);
         (uint256 reserve0, uint256 reserve1, ) =
-            IFoodcourtPair(pairFor(factory, tokenA, tokenB)).getReserves();
+            IBlockSwapPair(pairFor(factory, tokenA, tokenB)).getReserves();
         (reserveA, reserveB) = tokenA == token0
             ? (reserve0, reserve1)
             : (reserve1, reserve0);
@@ -63,10 +63,10 @@ library FoodcourtLibrary {
         uint256 reserveA,
         uint256 reserveB
     ) internal pure returns (uint256 amountB) {
-        require(amountA > 0, "FoodcourtLibrary: INSUFFICIENT_AMOUNT");
+        require(amountA > 0, "BlockSwapLibrary: INSUFFICIENT_AMOUNT");
         require(
             reserveA > 0 && reserveB > 0,
-            "FoodcourtLibrary: INSUFFICIENT_LIQUIDITY"
+            "BlockSwapLibrary: INSUFFICIENT_LIQUIDITY"
         );
         amountB = amountA.mul(reserveB) / reserveA;
     }
@@ -77,10 +77,10 @@ library FoodcourtLibrary {
         uint256 reserveIn,
         uint256 reserveOut
     ) internal pure returns (uint256 amountOut) {
-        require(amountIn > 0, "FoodcourtLibrary: INSUFFICIENT_INPUT_AMOUNT");
+        require(amountIn > 0, "BlockSwapLibrary: INSUFFICIENT_INPUT_AMOUNT");
         require(
             reserveIn > 0 && reserveOut > 0,
-            "FoodcourtLibrary: INSUFFICIENT_LIQUIDITY"
+            "BlockSwapLibrary: INSUFFICIENT_LIQUIDITY"
         );
         uint256 amountInWithFee = amountIn.mul(9975);
         uint256 numerator = amountInWithFee.mul(reserveOut);
@@ -94,10 +94,10 @@ library FoodcourtLibrary {
         uint256 reserveIn,
         uint256 reserveOut
     ) internal pure returns (uint256 amountIn) {
-        require(amountOut > 0, "FoodcourtLibrary: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(amountOut > 0, "BlockSwapLibrary: INSUFFICIENT_OUTPUT_AMOUNT");
         require(
             reserveIn > 0 && reserveOut > 0,
-            "FoodcourtLibrary: INSUFFICIENT_LIQUIDITY"
+            "BlockSwapLibrary: INSUFFICIENT_LIQUIDITY"
         );
         uint256 numerator = reserveIn.mul(amountOut).mul(10000);
         uint256 denominator = reserveOut.sub(amountOut).mul(9975);
@@ -110,7 +110,7 @@ library FoodcourtLibrary {
         uint256 amountIn,
         address[] memory path
     ) internal view returns (uint256[] memory amounts) {
-        require(path.length >= 2, "FoodcourtLibrary: INVALID_PATH");
+        require(path.length >= 2, "BlockSwapLibrary: INVALID_PATH");
         amounts = new uint256[](path.length);
         amounts[0] = amountIn;
         for (uint256 i; i < path.length - 1; i++) {
@@ -126,7 +126,7 @@ library FoodcourtLibrary {
         uint256 amountOut,
         address[] memory path
     ) internal view returns (uint256[] memory amounts) {
-        require(path.length >= 2, "FoodcourtLibrary: INVALID_PATH");
+        require(path.length >= 2, "BlockSwapLibrary: INVALID_PATH");
         amounts = new uint256[](path.length);
         amounts[amounts.length - 1] = amountOut;
         for (uint256 i = path.length - 1; i > 0; i--) {

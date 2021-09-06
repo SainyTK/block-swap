@@ -1,13 +1,13 @@
 pragma solidity >=0.5.0;
 
-import "./interfaces/IFoodcourtERC20.sol";
+import "./interfaces/IBlockSwapERC20.sol";
 import "./libraries/SafeMath.sol";
 
-contract FoodcourtERC20 is IFoodcourtERC20 {
+contract BlockSwapERC20 is IBlockSwapERC20 {
     using SafeMath for uint;
 
-    string public override constant name = 'Foodcourt LPs';
-    string public override constant symbol = 'Foodcourt-LP';
+    string public override constant name = 'BlockSwap LPs';
+    string public override constant symbol = 'BlockSwap-LP';
     uint8 public override constant decimals = 18;
     uint  public override totalSupply;
     mapping(address => uint) public override balanceOf;
@@ -76,7 +76,7 @@ contract FoodcourtERC20 is IFoodcourtERC20 {
     }
 
     function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external override {
-        require(deadline >= block.timestamp, 'Foodcourt: EXPIRED');
+        require(deadline >= block.timestamp, 'BlockSwap: EXPIRED');
         bytes32 digest = keccak256(
             abi.encodePacked(
                 '\x19\x01',
@@ -85,7 +85,7 @@ contract FoodcourtERC20 is IFoodcourtERC20 {
             )
         );
         address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress != address(0) && recoveredAddress == owner, 'Foodcourt: INVALID_SIGNATURE');
+        require(recoveredAddress != address(0) && recoveredAddress == owner, 'BlockSwap: INVALID_SIGNATURE');
         _approve(owner, spender, value);
     }
 }

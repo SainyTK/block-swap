@@ -1,14 +1,14 @@
 pragma solidity >=0.5.16;
 
-import "./interfaces/IFoodcourtFactory.sol";
-import "./interfaces/IFoodcourtPair.sol";
-import "./interfaces/IFoodcourtERC20.sol";
+import "./interfaces/IBlockSwapFactory.sol";
+import "./interfaces/IBlockSwapPair.sol";
+import "./interfaces/IBlockSwapERC20.sol";
 import "./interfaces/IERC20.sol";
 import "./libraries/SafeMath.sol";
-import "./FoodcourtPair.sol";
+import "./BlockSwapPair.sol";
 
-contract FoodcourtFactory is IFoodcourtFactory {
-    bytes32 public override constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(FoodcourtPair).creationCode));
+contract BlockSwapFactory is IBlockSwapFactory {
+    bytes32 public override constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(BlockSwapPair).creationCode));
 
     address public override feeTo;
     address public override feeToSetter;
@@ -25,16 +25,16 @@ contract FoodcourtFactory is IFoodcourtFactory {
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
-        require(tokenA != tokenB, 'Foodcourt: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, 'BlockSwap: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'Foodcourt: ZERO_ADDRESS');
-        require(getPair[token0][token1] == address(0), 'Foodcourt: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(FoodcourtPair).creationCode;
+        require(token0 != address(0), 'BlockSwap: ZERO_ADDRESS');
+        require(getPair[token0][token1] == address(0), 'BlockSwap: PAIR_EXISTS'); // single check is sufficient
+        bytes memory bytecode = type(BlockSwapPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IFoodcourtPair(pair).initialize(token0, token1);
+        IBlockSwapPair(pair).initialize(token0, token1);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
@@ -42,12 +42,12 @@ contract FoodcourtFactory is IFoodcourtFactory {
     }
 
     function setFeeTo(address _feeTo) external override {
-        require(msg.sender == feeToSetter, 'Foodcourt: FORBIDDEN');
+        require(msg.sender == feeToSetter, 'BlockSwap: FORBIDDEN');
         feeTo = _feeTo;
     }
 
     function setFeeToSetter(address _feeToSetter) external override {
-        require(msg.sender == feeToSetter, 'Foodcourt: FORBIDDEN');
+        require(msg.sender == feeToSetter, 'BlockSwap: FORBIDDEN');
         feeToSetter = _feeToSetter;
     }
 }
