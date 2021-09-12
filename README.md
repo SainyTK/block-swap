@@ -1,4 +1,4 @@
-# Swap fork 
+# BLOCK Swap
 
 ## Note
 1. Please edit the `secrets-example.json` file name to `secrets.json` and fill up your private keys to interact with the smart contracts.
