@@ -6,4 +6,4 @@
 
 ## Getting started
 1. run `npm i`
-2. run `npx hardhat run scripts/deploy.js`
+2. run `npx hardhat compile`
