@@ -3,6 +3,7 @@ import address from '../utils/address';
 import { UST__factory } from '../typechain/factories/UST__factory';
 
 async function main() {
+    const [owner] = await hre.ethers.getSigners();
     const UST = await hre.ethers.getContractFactory("UST") as UST__factory;
     const ust = await UST.deploy();
     await ust.deployTransaction.wait();
@@ -10,7 +11,7 @@ async function main() {
 
     await address.saveAddresses(hre.network.name, { ust: ust.address });
 
-    await ust.mint(hre.ethers.utils.parseEther('10000000')).then(tx => tx.wait());
+    await ust.mint(owner.address, hre.ethers.utils.parseEther('10000000')).then(tx => tx.wait());
 }
 
 main()

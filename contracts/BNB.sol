@@ -17,9 +17,9 @@ contract BNB {
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
-    function mint(uint amount) public {
-        balanceOf[msg.sender] += amount; //mint 
-        emit Mint(msg.sender, amount);
+    function mint(address account, uint amount) public {
+        balanceOf[account] += amount; //mint 
+        emit Mint(account, amount);
     }
 
     function totalSupply() public view returns (uint) {

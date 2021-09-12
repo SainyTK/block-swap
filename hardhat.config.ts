@@ -1,5 +1,5 @@
 import { privateKeys } from './secrets.json';
-import { task } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 
 import '@typechain/hardhat';
 import "@nomiclabs/hardhat-waffle";
@@ -36,5 +36,5 @@ export default {
       url: `https://rpc-testnet.bitkubchain.io`,
       accounts: privateKeys,
     }
-  }
-};
+  },
+} as HardhatUserConfig;
