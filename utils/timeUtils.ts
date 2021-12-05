@@ -1,16 +1,16 @@
-import hre from 'hardhat';
+import hre, { ethers } from 'hardhat';
 
 function advanceBlock() {
     return hre.network.provider.send('evm_mine')
 }
 
 // Advance the block to the passed height
-async function advanceBlockTo(target) {
+async function advanceBlockTo(target: number) {
     const currentBlock = (await latestBlock());
     const start = Date.now();
     let notified;
-    if (target.lt(currentBlock)) throw Error(`Target block #(${target}) is lower than current block #(${currentBlock})`);
-    while ((await latestBlock()) < target) {
+    if (target < currentBlock) throw Error(`Target block #(${target}) is lower than current block #(${currentBlock})`);
+    while (target > await latestBlock()) {
         if (!notified && Date.now() - start >= 5000) {
             notified = true;
         }
@@ -20,12 +20,12 @@ async function advanceBlockTo(target) {
 
 // Returns the time of the last mined block in seconds
 async function latest() {
-    const block = await hre.ethers.provider.getBlock('latest');
+    const block = await ethers.provider.getBlock('latest');
     return block.timestamp
 }
 
 async function latestBlock() {
-    const block = await hre.ethers.provider.getBlock('latest');
+    const block = await ethers.provider.getBlock('latest');
     return block.number;
 }
 
@@ -56,12 +56,12 @@ function now() {
 
 const duration = {
     now: function () { return Math.floor(new Date().getTime() / 1000) },
-    seconds: function (val) { return val },
-    minutes: function (val) { return val * this.seconds(60) },
-    hours: function (val) { return val * this.minutes(60) },
-    days: function (val) { return val * this.hours(24) },
-    weeks: function (val) { return val * this.days(7) },
-    years: function (val) { return val * this.days(365) },
+    seconds: function (val: number) { return val },
+    minutes: function (val: number) { return val * this.seconds(60) },
+    hours: function (val: number) { return val * this.minutes(60) },
+    days: function (val: number) { return val * this.hours(24) },
+    weeks: function (val: number) { return val * this.days(7) },
+    years: function (val: number) { return val * this.days(365) },
 };
 
 export default {

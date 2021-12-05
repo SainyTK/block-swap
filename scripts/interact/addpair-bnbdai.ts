@@ -1,8 +1,8 @@
 import hre, { ethers } from 'hardhat';
-import { BNB__factory } from '../typechain/factories/BNB__factory';
-import { DAI__factory } from '../typechain/factories/DAI__factory';
-import { BlockSwapRouter__factory } from '../typechain/factories/BlockSwapRouter__factory';
-import address from '../utils/address';
+import { BNB__factory } from '../../typechain/factories/BNB__factory';
+import { DAI__factory } from '../../typechain/factories/DAI__factory';
+import { BlockSwapRouter__factory } from '../../typechain/factories/BlockSwapRouter__factory';
+import address from '../../utils/address';
 
 const daiBNB = [
     '320267',

@@ -1,6 +1,6 @@
 // File: contracts\libraries\BlockSwapLibrary.sol
 
-pragma solidity >=0.5.0;
+pragma solidity ^0.6.0;
 
 import "./SafeMath.sol";
 import "../interfaces/IBlockSwapPair.sol";
@@ -35,7 +35,7 @@ library BlockSwapLibrary {
                         hex"ff",
                         factory,
                         keccak256(abi.encodePacked(token0, token1)),
-                        hex"7d9d613af85ec98fe334d6f9e81adabfeedda8d291ab830832ed815862d76aa9" // init code hash
+                        hex"06c9b2b22832d278b8dfde29c54d254905ec9689e4d5ba230074db32f828502e" // init code hash
                     )
                 )
             )

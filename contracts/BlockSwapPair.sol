@@ -1,4 +1,4 @@
-pragma solidity >=0.6.2;
+pragma solidity ^0.6.2;
 
 import "./interfaces/IERC20.sol";
 import "./interfaces/IBlockSwapPair.sol";

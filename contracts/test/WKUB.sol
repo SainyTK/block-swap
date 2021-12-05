@@ -1,25 +1,34 @@
-/**
- *Submitted for verification at Etherscan.io on 2017-12-12
-*/
+//SPDX-License-Identifier: MIT
 
-pragma solidity >=0.5.0;
+pragma solidity ^0.8.0;
 
-contract UST {
-    string public name     = "Terra USD";
-    string public symbol   = "UST";
+contract WKUB {
+    string public name     = "Wrapped KUB";
+    string public symbol   = "WKUB";
     uint8  public decimals = 18;
 
     event  Approval(address indexed src, address indexed guy, uint wad);
     event  Transfer(address indexed src, address indexed dst, uint wad);
-    event  Mint(address indexed dst, uint wad);
+    event  Deposit(address indexed dst, uint wad);
     event  Withdrawal(address indexed src, uint wad);
 
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
-    function mint(address account, uint amount) public {
-        balanceOf[account] += amount; //mint 
-        emit Mint(account, amount);
+    receive() external payable {
+        deposit();
+    }
+
+    function deposit() public payable {
+        balanceOf[msg.sender] += msg.value; //mint 
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint wad) public {
+        require(balanceOf[msg.sender] >= wad);
+        balanceOf[msg.sender] -= wad; //burn
+        payable(msg.sender).transfer(wad);
+        emit Withdrawal(msg.sender, wad);
     }
 
     function totalSupply() public view returns (uint) {
@@ -42,7 +51,7 @@ contract UST {
     {
         require(balanceOf[src] >= wad);
 
-        if (src != msg.sender && allowance[src][msg.sender] != uint(-1)) {
+        if (src != msg.sender && allowance[src][msg.sender] != type(uint).max) {
             require(allowance[src][msg.sender] >= wad);
             allowance[src][msg.sender] -= wad;
         }

@@ -3,7 +3,7 @@
  */
 
 // File: contracts\BlockSwapRouter.sol
-pragma solidity >=0.6.6;
+pragma solidity ^0.6.6;
 
 import "./interfaces/IBlockSwapRouter02.sol";
 import "./interfaces/IBlockSwapPair.sol";
