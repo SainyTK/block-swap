@@ -10,7 +10,9 @@ import "solidity-coverage";
 dotenv.config();
 
 const getAccounts = () => {
-  return process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [];
+  const arr = Object.entries(process.env);
+  const privateKeys = arr.filter(([key,val]) => key.includes(`PRIVATE_KEY`)).map(([key, val]) => val || '');
+  return privateKeys;
 }
 
 // You need to export an object to set up your config
