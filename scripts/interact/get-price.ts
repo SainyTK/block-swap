@@ -54,6 +54,7 @@ async function main() {
         const item = perms[i];
         const { names, addresses } = item;
         try {
+            // USDT -> CDS -> BTC -> USDT
             let result = await router.getAmountsOut(amountIn, [KKUB, ...addresses, KKUB]);
 
             const output = result[result.length - 1];
